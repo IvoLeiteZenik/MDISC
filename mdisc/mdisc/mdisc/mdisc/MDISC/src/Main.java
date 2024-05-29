@@ -1,47 +1,50 @@
-package pt.ipp.isep.dei.esoft.project.domain.mdisc.MDISC.src;
+import java.util.Scanner;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+    import java.io.FileNotFoundException;
+import java.util.Scanner;
 
-public class Main {
+    public class Main {
 
-    public static void main(String[] args) {
-        // Executar a US13 para um arquivo de entrada específico
-        String inputFileName = "US13_JardimDosSentimentos.csv"; // Nome do arquivo de entrada
-        try {
-            boolean result = RouteOptimizer.buildIrrigationRoutes(inputFileName);
-            if (result) {
-                System.out.println("US13 completed successfully.");
+        public static void main(String[] args) {
+            EmergencyPlanManager emergencyPlanManager = new EmergencyPlanManager();
+            Scanner scanner = new Scanner(System.in);
 
-                // Após a execução bem-sucedida, obter parâmetros
-                Graph originalGraph = new Graph(SVReader.readCSV("C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us13_input\\" + inputFileName, ";"));
-                Graph mst = new Graph(SVReader.readCSV("C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us13_results\\mst" + inputFileName, ";"));
+            System.out.println("Choose an option:");
+            System.out.println("1 - Place signs to evacuate park users to an Assembly Point (US17)");
+            System.out.println("2 - Place signs to evacuate park users to one of the several Assembly Points (US18)");
 
-                int graphDimension = originalGraph.getGraph().size();
-                int graphOrder = originalGraph.getVertices().size();
-                double minimumCost = mst.getGraphCost();
+            int option = scanner.nextInt();
 
-                System.out.println("Graph Dimension: " + graphDimension);
-                System.out.println("Graph Order: " + graphOrder);
-                System.out.println("Minimum cost: " + minimumCost);
-            } else {
-                System.out.println("US13 did not complete successfully.");
+            switch (option) {
+                case 1:
+                    executeUS17(emergencyPlanManager);
+                    break;
+                case 2:
+                    executeUS18(emergencyPlanManager);
+                    break;
+                default:
+                    System.out.println("Invalid option.");
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("File not found: " + e.getMessage());
         }
 
-        // Executar a US14 para observar o comportamento assintótico
-        String testFilePrefix = "us14_"; // Prefixo dos arquivos de teste
-        try {
-            boolean testResult = Tests.runTestsForVariableInputsSize(testFilePrefix);
-            if (testResult) {
-                System.out.println("US14 tests completed successfully.");
-            } else {
-                System.out.println("US14 tests did not complete successfully.");
-            }
-        } catch (IOException e) {
-            System.err.println("Error during test execution: " + e.getMessage());
+        private static void executeUS17(EmergencyPlanManager emergencyPlanManager) {
+            String matrixFilePath = "C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us17_input\\matrix.csv";
+            String pointsFilePath = "C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us17_input\\points.csv";
+            String separator = ";";
+
+            emergencyPlanManager.importEmergencyData(matrixFilePath, pointsFilePath, separator);
+            emergencyPlanManager.generateEvacuationRoutes();
+            emergencyPlanManager.visualizeGraphAndPaths();
+        }
+
+        private static void executeUS18(EmergencyPlanManager emergencyPlanManager) {
+            String assemblyPointsFilePath = "C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us18_input\\assembly_points.csv";
+            String separator = ";";
+
+            emergencyPlanManager.importAssemblyPoints(assemblyPointsFilePath, separator);
+            emergencyPlanManager.generateShortestRoutesToClosestAssemblyPoint();
+            emergencyPlanManager.visualizeGraphAndPaths();
         }
     }
-}
+
+

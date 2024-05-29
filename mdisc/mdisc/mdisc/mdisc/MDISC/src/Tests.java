@@ -1,9 +1,3 @@
-package pt.ipp.isep.dei.esoft.project.domain.mdisc.MDISC.src;
-
-
-import pt.ipp.isep.dei.esoft.project.domain.mdisc.MDISC.src.Graph;
-import pt.ipp.isep.dei.esoft.project.domain.mdisc.MDISC.src.KruskalMethod;
-import pt.ipp.isep.dei.esoft.project.domain.mdisc.MDISC.src.SVReader;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +5,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tests {
+/* public class Tests {
     static final int NUMBER_OF_TRIES = 5;
     static final String PATH_TO_INPUT_FILES = "C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us14_input\\";
     static final String PATH_TO_OUTPUT_FILES = "C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us14_results\\";
@@ -23,21 +17,20 @@ public class Tests {
             String fileName = filePrefix + i + ".csv";
             List<Double> runtimes = new ArrayList<>();
 
-            // Obtenha a lista de arestas do CSV
-            List<Edge> edges = SVReader.readCSV(PATH_TO_INPUT_FILES + fileName, ";");
 
-            // Crie um objeto Graph a partir da lista de arestas
+            List<Edge> edges = CSVReader.readCSV(PATH_TO_INPUT_FILES + fileName, ";");
+
+
             Graph graph = new Graph(edges);
 
-            int size = graph.getGraph().size();
+            int size = graph.getGraphSize();
 
             for (int j = 0; j < NUMBER_OF_TRIES; j++) {
                 double runtime = runTest(graph);
                 runtimes.add(runtime);
             }
             double meanRuntime = calculateMean(runtimes);
-            double stdDev = calculateStdDev(runtimes);
-            sb.append(size).append(", ").append(meanRuntime).append(", ").append(stdDev).append("\n");
+            sb.append(size).append(", ").append(meanRuntime).append(". \n");
         }
 
         PrintWriter pw = new PrintWriter(PATH_TO_OUTPUT_FILES + filePrefix + ".csv");
@@ -58,14 +51,6 @@ public class Tests {
         return sum / values.size();
     }
 
-    public static double calculateStdDev(List<Double> values) {
-        double mean = calculateMean(values);
-        double sumSquaredDiff = 0;
-        for (double val : values) {
-            sumSquaredDiff += Math.pow(val - mean, 2);
-        }
-        return Math.sqrt(sumSquaredDiff / values.size());
-    }
 
     public static void plot(String filename, String filePrefix) throws IOException {
         File outF = new File(PATH_TO_OUTPUT_FILES + "auxFile.gp");
@@ -75,13 +60,13 @@ public class Tests {
         out.print("set title 'Execution time tests'" + "\n");
         out.print("set xlabel 'Size of Graph (number of edges)'" + "\n");
         out.print("set ylabel 'Runtime (milliseconds)'" + "\n");
-        out.print("set grid\n"); // Add gridlines
-        out.print("set xrange [0:*]\n"); // Extend x-axis range
-        out.print("set yrange [0:*]\n"); // Extend y-axis range
-        out.print("set style fill transparent solid 0.9\n"); // Set plot area background color
+        out.print("set grid\n");
+        out.print("set xrange [0:*]\n");
+        out.print("set yrange [0:*]\n");
+        out.print("set style fill transparent solid 0.9\n");
         out.println("plot '" + filename + "'  u 1:2 w p t 'Algorithm Performance'");
         out.close();// It's done, closing document.
-        Runtime.getRuntime().exec("gnuplot " + PATH_TO_OUTPUT_FILES + "auxFile.gp");
+        Runtime.getRuntime().exec("\"C:\\Program Files\\gnuplot\\bin\\gnuplot.exe\"" + PATH_TO_OUTPUT_FILES + "auxFile.gp");
     }
 
     public static double runTest(Graph graph) {
@@ -95,4 +80,4 @@ public class Tests {
 
         return duration;
     }
-}
+}*/
