@@ -1,44 +1,39 @@
-
-
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class EmergencyPlanManager {
 
     private Graph graph;
     private List<Vertex> assemblyPoints;
 
-    public EmergencyPlanManager() {
-        this.graph = new Graph();
+    public EmergencyPlanManager(String outputDirectory) {
+        this.graph = new Graph(outputDirectory);
         this.assemblyPoints = new ArrayList<>();
     }
 
-    public void importEmergencyData(String matrixFilePath, String pointsFilePath, String separator) {
-        try {
-            double[][] graphData = CSVReader.readMatrix(matrixFilePath, separator);
-            List<String> points = CSVReader.readPoints(pointsFilePath, separator);
-            List<Integer> assemblyPointsIndices = CSVReader.identifyAssemblyPoints(points);
+    public void importEmergencyData(String matrixFilePath, String pointsFilePath, String separator) throws IOException {
+        double[][] graphData = CSVReader.readMatrix(matrixFilePath, separator);
+        List<String> points = CSVReader.readPoints(pointsFilePath, separator);
+        List<Integer> assemblyPointsIndices = CSVReader.identifyAssemblyPoints(points);
 
-            List<Edge> edges = new ArrayList<>();
-            for (int i = 0; i < graphData.length; i++) {
-                for (int j = 0; j < graphData[i].length; j++) {
-                    double distance = graphData[i][j];
-                    if (distance != 0) {
-                        Vertex origin = new Vertex(points.get(i));
-                        Vertex destination = new Vertex(points.get(j));
-                        edges.add(new Edge(origin, destination, distance));
-                    }
-                }
-            }
+        validateInputData(graphData, points, assemblyPointsIndices);
 
-            this.graph.setGraph(edges);
-            for (Integer index : assemblyPointsIndices) {
-                assemblyPoints.add(new Vertex(points.get(index)));
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        this.graph.setAdjacencyMatrix(graphData);
+        this.graph.createEdgesFromMatrix();
+        this.graph.setAssemblyPoints(assemblyPointsIndices, points);
+
+        for (Integer index : assemblyPointsIndices) {
+            assemblyPoints.add(new Vertex(points.get(index)));
+        }
+    }
+
+    private void validateInputData(double[][] graphData, List<String> points, List<Integer> assemblyPointsIndices) throws IllegalArgumentException {
+        if (graphData == null || points == null || assemblyPointsIndices == null) {
+            throw new IllegalArgumentException("Input data cannot be null");
+        }
+        if (graphData.length != points.size()) {
+            throw new IllegalArgumentException("Graph data size does not match points size");
         }
     }
 
@@ -46,9 +41,10 @@ public class EmergencyPlanManager {
         graph.sortGraphEdgesByCost();
         for (Vertex signalPoint : graph.getVertices()) {
             for (Vertex assemblyPoint : assemblyPoints) {
-                List<Edge> shortestPath = graph.findShortestPath(signalPoint, assemblyPoint);
+                List<Edge> shortestPath = DijkstraMethod.findShortestPath(graph, signalPoint, assemblyPoint);
+                graph.setGraph(shortestPath);  // Temporarily set the graph to the shortest path
                 String outputPath = "evacuation_route_" + signalPoint.getName() + "_to_" + assemblyPoint.getName() + ".csv";
-                graph.generateCsvOutput(outputPath, shortestPath);
+                graph.generateCsvOutput(outputPath);
             }
         }
     }
@@ -56,14 +52,25 @@ public class EmergencyPlanManager {
     public void visualizeGraphAndPaths() {
         String graphFilename = "emergency_graph.uml";
         String pathsFilename = "evacuation_paths.uml";
-        graph.generateGraph(graphFilename);
-        graph.generateGraphWithShortestPaths(pathsFilename, assemblyPoints);
+        graph.generateGraph(graphFilename, assemblyPoints);
+        graph.generateGraph(pathsFilename, assemblyPoints);
     }
 
     public void generateShortestRoutesToClosestAssemblyPoint() {
-    }
-
-    public void importAssemblyPoints(String assemblyPointsFilePath, String separator) {
-
+        for (Vertex signalPoint : graph.getVertices()) {
+            List<Edge> shortestPath = null;
+            double minCost = Double.MAX_VALUE;
+            for (Vertex assemblyPoint : assemblyPoints) {
+                List<Edge> path = DijkstraMethod.findShortestPath(graph, signalPoint, assemblyPoint);
+                double pathCost = DijkstraMethod.calculatePathCost(path);
+                if (pathCost < minCost) {
+                    shortestPath = path;
+                    minCost = pathCost;
+                }
+            }
+            graph.setGraph(shortestPath);  // Temporarily set the graph to the shortest path
+            String outputPath = "evacuation_route_to_closest_assembly_point_" + signalPoint.getName() + ".csv";
+            graph.generateCsvOutput(outputPath);
+        }
     }
 }

@@ -1,50 +1,64 @@
-import java.util.Scanner;
+import java.io.File;
+import java.io.IOException;
 
-    import java.io.FileNotFoundException;
-import java.util.Scanner;
+public class Main {
+    public static void main(String[] args) {
+        String separator = ";";
 
-    public class Main {
+        // US17
+        try {
+            EmergencyPlanManager emergencyPlanManagerUS17 = new EmergencyPlanManager("C:\\Users\\gonca\\MDISC.sprint2\\src\\us17_output");
+            String matrixFilePathUS17 = "C:\\Users\\gonca\\MDISC.sprint2\\src\\us17_matrix\\us17_matrix.csv\\";
+            String pointsFilePathUS17 = "C:\\Users\\gonca\\MDISC.sprint2\\src\\us17_point_names\\us17_points.csv\\";
 
-        public static void main(String[] args) {
-            EmergencyPlanManager emergencyPlanManager = new EmergencyPlanManager();
-            Scanner scanner = new Scanner(System.in);
-
-            System.out.println("Choose an option:");
-            System.out.println("1 - Place signs to evacuate park users to an Assembly Point (US17)");
-            System.out.println("2 - Place signs to evacuate park users to one of the several Assembly Points (US18)");
-
-            int option = scanner.nextInt();
-
-            switch (option) {
-                case 1:
-                    executeUS17(emergencyPlanManager);
-                    break;
-                case 2:
-                    executeUS18(emergencyPlanManager);
-                    break;
-                default:
-                    System.out.println("Invalid option.");
+            // Verificar se o arquivo de matriz existe e está acessível
+            File matrixFileUS17 = new File(matrixFilePathUS17);
+            if (!matrixFileUS17.exists() || !matrixFileUS17.canRead()) {
+                System.err.println("Cannot access file: " + matrixFilePathUS17);
+                return;
             }
+
+            // Verificar se o arquivo de pontos existe e está acessível
+            File pointsFileUS17 = new File(pointsFilePathUS17);
+            if (!pointsFileUS17.exists() || !pointsFileUS17.canRead()) {
+                System.err.println("Cannot access file: " + pointsFilePathUS17);
+                return;
+            }
+
+            emergencyPlanManagerUS17.importEmergencyData(matrixFilePathUS17, pointsFilePathUS17, separator);
+            emergencyPlanManagerUS17.visualizeGraphAndPaths();
+            emergencyPlanManagerUS17.generateEvacuationRoutes();
+            System.out.println("US17 completed successfully.");
+        } catch (IOException e) {
+            System.err.println("US17 - Error during execution: " + e.getMessage());
         }
 
-        private static void executeUS17(EmergencyPlanManager emergencyPlanManager) {
-            String matrixFilePath = "C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us17_input\\matrix.csv";
-            String pointsFilePath = "C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us17_input\\points.csv";
-            String separator = ";";
+        // US18
+        try {
+            EmergencyPlanManager emergencyPlanManagerUS18 = new EmergencyPlanManager("C:\\Users\\gonca\\MDISC.sprint2\\src\\us18_output");
+            String matrixFilePathUS18 = "C:\\Users\\gonca\\MDISC.sprint2\\src\\us18_matrix\\us18_matrix.csv";
+            String pointsFilePathUS18 = "C:\\Users\\gonca\\MDISC.sprint2\\src\\us18_point_names\\us18_points.csv";
 
-            emergencyPlanManager.importEmergencyData(matrixFilePath, pointsFilePath, separator);
-            emergencyPlanManager.generateEvacuationRoutes();
-            emergencyPlanManager.visualizeGraphAndPaths();
-        }
+            // Verificar se o arquivo de matriz existe e está acessível
+            File matrixFileUS18 = new File(matrixFilePathUS18);
+            if (!matrixFileUS18.exists() || !matrixFileUS18.canRead()) {
+                System.err.println("Cannot access file: " + matrixFilePathUS18);
+                return;
+            }
 
-        private static void executeUS18(EmergencyPlanManager emergencyPlanManager) {
-            String assemblyPointsFilePath = "C:\\Users\\gonca\\Downloads\\mdisc\\mdisc\\mdisc\\MDISC\\us18_input\\assembly_points.csv";
-            String separator = ";";
+            // Verificar se o arquivo de pontos existe e está acessível
+            File pointsFileUS18 = new File(pointsFilePathUS18);
+            if (!pointsFileUS18.exists() || !pointsFileUS18.canRead()) {
+                System.err.println("Cannot access file: " + pointsFilePathUS18);
+                return;
+            }
 
-            emergencyPlanManager.importAssemblyPoints(assemblyPointsFilePath, separator);
-            emergencyPlanManager.generateShortestRoutesToClosestAssemblyPoint();
-            emergencyPlanManager.visualizeGraphAndPaths();
+            emergencyPlanManagerUS18.importEmergencyData(matrixFilePathUS18, pointsFilePathUS18, separator);
+            emergencyPlanManagerUS18.visualizeGraphAndPaths();
+            emergencyPlanManagerUS18.generateShortestRoutesToClosestAssemblyPoint();
+            System.out.println("US18 completed successfully.");
+        } catch (IOException e) {
+            System.err.println("US18 - Error during execution: " + e.getMessage());
         }
     }
-
-
+}
